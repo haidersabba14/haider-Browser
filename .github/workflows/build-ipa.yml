@@ -1,0 +1,30 @@
+name: Build iOS IPA
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: macos-14
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Unpack project
+        run: unzip -q haider-GitHub-Upload.zip -d project
+
+      - name: Build native IPA
+        run: |
+          cd project
+          bash scripts/build-ios.sh --unsigned
+          cp dist/haider-Browser-unsigned.ipa ../haider-Browser.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: haider-Browser-IPA
+          path: haider-Browser.ipa
+          if-no-files-found: error

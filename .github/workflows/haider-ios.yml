@@ -1,0 +1,38 @@
+name: Build and test iOS IPA
+on:
+  push:
+    branches: [main]
+    paths: ['haider-iOS-Ready.zip', '.github/workflows/haider-ios.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack complete project
+        run: unzip -q haider-iOS-Ready.zip -d project
+      - name: Test app startup and browsing
+        run: bash project/scripts/test-ios-startup.sh
+      - name: Build native IPA after tests pass
+        run: |
+          bash project/scripts/build-ios.sh --unsigned
+          cp project/dist/haider-Browser-unsigned.ipa haider-Browser.ipa
+      - name: Save test results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-startup-diagnostics
+          path: |
+            project/dist/ios-startup.xcresult
+            project/dist/ios-startup-test.log
+            project/dist/ios-fixture.log
+          if-no-files-found: warn
+      - name: Save IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: haider-Browser-IPA
+          path: haider-Browser.ipa
+          if-no-files-found: error

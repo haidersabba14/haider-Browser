@@ -1,0 +1,51 @@
+name: Build and test iOS IPA
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'haider-GitHub-Upload.zip'
+      - 'ios-startup.patch'
+      - '.github/workflows/build-ipa.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Unpack project and apply startup fix
+        run: |
+          unzip -q haider-GitHub-Upload.zip -d project
+          git apply --check --directory=project ios-startup.patch
+          git apply --directory=project ios-startup.patch
+      - name: Show selected Apple toolchain
+        run: xcodebuild -version
+      - name: Test three cold launches and local WebKit navigation
+        run: bash project/scripts/test-ios-startup.sh
+      - name: Build native device IPA after passing UI tests
+        run: |
+          bash project/scripts/build-ios.sh --unsigned
+          cp project/dist/haider-Browser-unsigned.ipa haider-Browser.ipa
+          file 'project/dist/haider.xcarchive/Products/Applications/haider Browser.app/haider Browser' | grep 'Mach-O'
+          shasum -a 256 haider-Browser.ipa > haider-Browser.ipa.sha256
+      - name: Save UI test evidence even when a test fails
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-startup-diagnostics
+          path: |
+            project/dist/ios-startup.xcresult
+            project/dist/ios-startup-test.log
+            project/dist/ios-fixture.log
+          if-no-files-found: warn
+          retention-days: 7
+      - name: Save actual IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: haider-Browser-IPA
+          path: |
+            haider-Browser.ipa
+            haider-Browser.ipa.sha256
+          if-no-files-found: error

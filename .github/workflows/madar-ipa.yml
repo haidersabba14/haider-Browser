@@ -1,0 +1,42 @@
+name: Build Madar IPA
+on:
+  push:
+    branches: [madar-ios-ipa]
+    paths: ['madar-ios/**', '.github/workflows/madar-ipa.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: madar-ipa-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and validate unsigned device IPA
+        run: bash madar-ios/scripts/build-ipa-ci.sh
+      - name: Check simulator startup and capture login
+        run: bash madar-ios/scripts/check-startup-ci.sh
+      - name: Save IPA
+        uses: actions/upload-artifact@v4
+        with:
+          name: Madar-IPA-unsigned-needs-signing
+          path: |
+            ${{ runner.temp }}/madar-artifacts/Madar-unsigned.ipa
+            ${{ runner.temp }}/madar-artifacts/SHA256SUMS.txt
+            ${{ runner.temp }}/madar-artifacts/INSTALL.txt
+          if-no-files-found: error
+          retention-days: 14
+      - name: Save build and startup diagnostics
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Madar-build-diagnostics
+          path: |
+            ${{ runner.temp }}/madar-artifacts/*.log
+            ${{ runner.temp }}/madar-artifacts/*.txt
+            ${{ runner.temp }}/madar-artifacts/simulator-login.png
+          if-no-files-found: warn
+          retention-days: 7

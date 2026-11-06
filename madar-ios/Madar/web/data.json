@@ -1,0 +1,39 @@
+{
+  "name": "haider Browser",
+  "repository": "haidersabba14/haider-Browser",
+  "bundleId": "com.haider.browser",
+  "version": "0.2.1",
+  "build": "3",
+  "minimumOS": "16.0",
+  "ipaFilename": "haider-Browser.ipa",
+  "ipaSize": 256352,
+  "metadataSource": "ملف IPA الذي أرسلته",
+  "sha256": "82c00d5a6b7ee0880ac58b0eec0d42aa44e60aa9f590f8c0ced8a9ddd65e0498",
+  "privacyManifest": {
+    "NSPrivacyTracking": false,
+    "NSPrivacyCollectedDataTypes": [],
+    "NSPrivacyAccessedAPITypes": [
+      {
+        "NSPrivacyAccessedAPIType": "NSPrivacyAccessedAPICategoryUserDefaults",
+        "NSPrivacyAccessedAPITypeReasons": [
+          "CA92.1"
+        ]
+      }
+    ]
+  },
+  "supportedPlatforms": [
+    "iPhoneOS"
+  ],
+  "deviceFamilies": [
+    1,
+    2
+  ],
+  "orientations": [
+    "UIInterfaceOrientationPortrait",
+    "UIInterfaceOrientationLandscapeLeft",
+    "UIInterfaceOrientationLandscapeRight"
+  ],
+  "urlSchemes": [],
+  "owner": "haidersabba14",
+  "revenueStatus": "user_confirmed_free"
+}
